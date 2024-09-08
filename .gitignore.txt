@@ -1,0 +1,22 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env/
+.venv/
+
+# Model files
+*.bin
+*.pt
+*.h5
+*.onnx
+*.ckpt
+*.gguf
+
+# Ignore log files and temp files
+*.log
+*.csv
+.DS_Store
