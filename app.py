@@ -32,6 +32,30 @@ def main():
                 st.write("Query results:")
                 for i, doc in enumerate(query_result['documents']):
                     st.write(f"Result {i+1}: {doc}")
+                
+                # Use the first document's content as context
+                context = query_result['documents'][0]
+
+                # Initialize the LLM response generator
+                response_generator = LLMResponseGenerator(model_path=r"C:\Users\navpa\Downloads\Phi-3-mini-4k-instruct.Q4_0.gguf")
+                
+                # Truncate the context to fit within token limits
+                truncated_context = response_generator.truncate_text(response_generator.clean_text(context), max_tokens=1500)
+
+                # Combine context and query for the LLM
+                combined_query = f"{truncated_context}\n\nQ:{query}\nA:"
+                
+                # Ensure combined query is within token limits
+                total_tokens = response_generator.count_tokens(combined_query)
+                if total_tokens > 2048:
+                    combined_query = response_generator.truncate_text(combined_query, max_tokens=2048)
+                
+                # Generate a response from the LLM using the combined query
+                response = response_generator.generate_response(combined_query)
+                
+                # Display the LLM response
+                st.write("LLM Response:")
+                st.write(response)
             else:
                 st.write("No relevant documents found.")
 
