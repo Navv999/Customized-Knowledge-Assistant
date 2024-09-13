@@ -5,7 +5,13 @@ from langchain_community.llms import GPT4All
 from langchain_core.prompts import PromptTemplate
 import tiktoken
 import re
+from groq import Groq
+import os
 
+
+# client = Groq(
+#     api_key=os.environ.get("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"),
+# )
 
 
 
