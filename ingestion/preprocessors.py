@@ -6,9 +6,9 @@ from nltk.stem import WordNetLemmatizer
 
 
 
-# nltk.download('punkt')
-# nltk.download('stopwords')
-# nltk.download('wordnet')
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
 
 def preprocess_text(text):
     text = re.sub(r'\s+', ' ', text)
