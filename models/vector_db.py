@@ -53,7 +53,18 @@ class LLMResponseGenerator:
         # Load GPT4All model
         self.llm = GPT4All(model=self.model_path, streaming=False)
         self.prompt_template = PromptTemplate.from_template(
-            "Q: {question}\nA:"
+        """
+              You are a detailed and helpful assistant. Please answer the question in the following format:
+    
+        1. Definition:
+        2. Key Points:
+        3. Example (if applicable):
+
+        Context: {context}
+
+        Q: {question}
+        A:
+        """
         )
         self.encoding = tiktoken.get_encoding("cl100k_base")  # Adjust as needed
 
