@@ -1,24 +1,18 @@
 import re
-import nltk
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-from nltk.stem import WordNetLemmatizer
-from nltk.corpus import wordnet as wn
-from nltk.corpus import stopwords
-# from nltk.corpus import 
+import spacy
 
-
-
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('wordnet')
+# Load the spaCy model
+nlp = spacy.load('en_core_web_sm')
 
 def preprocess_text(text):
+    # Remove extra whitespaces
     text = re.sub(r'\s+', ' ', text)
     text = text.lower()
-    words = word_tokenize(text)
-    words = [word for word in words if word.isalnum()]
-    words = [word for word in words if word not in stopwords.words('english')]
-    lemmatizer = WordNetLemmatizer()
-    words = [lemmatizer.lemmatize(word) for word in words]
+
+    # Process the text with spaCy
+    doc = nlp(text)
+
+    # Filter tokens: Remove stopwords, punctuation, and non-alphanumeric tokens, and lemmatize
+    words = [token.lemma_ for token in doc if token.is_alpha and not token.is_stop]
+
     return ' '.join(words)

@@ -47,7 +47,7 @@ class LLMResponseGenerator:
         # Call Groq API with the chat history
         chat_completion = self.client.chat.completions.create(
             messages=self.chat_history,
-            model="gemma2-9b-it"
+            model="llama3-8b-8192"
         )
         
         # Extract response and add to the history
