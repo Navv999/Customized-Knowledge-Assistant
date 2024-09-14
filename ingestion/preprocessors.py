@@ -4,11 +4,13 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet as wn
+from nltk.corpus import stopwords
+# from nltk.corpus import 
 
 
 
 nltk.download('punkt')
-nltk.download('stopwords')
+# nltk.download('stopwords')
 # nltk.download('wordnet')
 
 def preprocess_text(text):
