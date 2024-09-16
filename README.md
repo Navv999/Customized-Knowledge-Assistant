@@ -27,6 +27,7 @@ The retrieved context is combined with the user query to form an augmented promp
 LLM Response:
 
 GPT4All, a locally hosted LLM, generates a response based on the augmented query, providing a context-aware answer.
+Integrated api based response generation utilising groq so that deployment can be made easy you can use any free rsource you want.
 Example
 The project stores two example documents: one on Heart Disease and another on Drone Navigation.
 When you query for "heart disease remedies", the system retrieves the relevant information from the Heart Disease document, combines it with the query, and generates a detailed response using the LLM.
