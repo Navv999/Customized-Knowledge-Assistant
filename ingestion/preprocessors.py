@@ -1,5 +1,6 @@
 import re
 import spacy
+import indic
 
 # Load the spaCy model
 nlp = spacy.load('en_core_web_sm')
