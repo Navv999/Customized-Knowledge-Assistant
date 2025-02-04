@@ -24,11 +24,16 @@
 
 import os
 from groq import Groq
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
 
 class LLMResponseGenerator:
     def __init__(self):
         # Retrieve the API key from the environment
-        api_key = "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"
+        api_key = os.getenv("API_KEY")
         self.client = Groq(api_key=api_key)
         self.chat_history = []  # Keep track of the conversation
 
