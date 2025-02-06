@@ -34,7 +34,7 @@ class LLMResponseGenerator:
     def __init__(self):
         # Retrieve the API key from the environment
         api_key = os.getenv("api_key")
-        self.client = Groq(api_key=api_key)
+        self.client = Groq(api_key="api_key")
         self.chat_history = []  # Keep track of the conversation
 
     def add_message_to_history(self, role, content):
