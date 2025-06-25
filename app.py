@@ -116,61 +116,99 @@ import streamlit as st
 import pandas as pd
 from llm_api import LLMResponseGenerator
 from ingestion import extractors, preprocessors
-
-# Initialize session state for chat history and input if not already present
-if 'chat_history' not in st.session_state:
-    st.session_state['chat_history'] = []
-if 'message' not in st.session_state:
-    st.session_state['message'] = ''
+from models import vector_db
+import os
 
 def main():
-    st.title("Personal Knowledge Assistant - Chat Interface")
+    st.set_page_config(page_title="AI Chatbot", layout="wide")  
+    st.title("AI Chatbot with File & URL Support")
 
-    # Initialize the LLM response generator
-    response_generator = LLMResponseGenerator()
 
-    # File uploader for PDFs or DataFrames (CSV)
-    uploaded_files = st.file_uploader("Upload PDFs or CSV", type=["pdf", "csv"], accept_multiple_files=True)
+    # Sidebar: File Upload & URL Input
+    with st.sidebar:
+        st.header("Upload Files & URLs")
+        uploaded_file = st.file_uploader("Upload PDF/CSV", type=["pdf", "csv"])
+        url_input = st.text_input("Enter a URL to fetch text:")
 
-    # Process uploaded files and add context to the chat history
-    if uploaded_files:
-        for uploaded_file in uploaded_files:
-            if uploaded_file.type == "application/pdf":
-                # Extract text from PDF
-                text = extractors.extract_text_from_pdf(uploaded_file)
-                cleaned_text = preprocessors.preprocess_text(text)
-                # Add system message about the file context
-                st.session_state['chat_history'].append(f"System: Context from {uploaded_file.name} has been added.")
-                response_generator.add_message_to_history("system", f"Context from {uploaded_file.name}: {cleaned_text}")
-            elif uploaded_file.type == "text/csv":
-                # Process CSV as a DataFrame
-                df = pd.read_csv(uploaded_file)
-                # Add system message about the CSV context
-                st.session_state['chat_history'].append(f"System: DataFrame from {uploaded_file.name} has been added.")
-                df_summary = df.describe().to_string()
-                response_generator.add_message_to_history("system", f"Summary from {uploaded_file.name}: {df_summary}")
+        if st.button("Clear Chat"):
+            st.session_state.chat_history = []
+            st.rerun()
 
-    # Display chat history
-    for message in st.session_state['chat_history']:
-        st.write(message)
+    
+    v_db=vector_db.VectorDB()
 
-    # Text input for user's message
-    user_input = st.text_input("Your message:", key="user_input")
 
-    # Button to send the message
-    if st.button("Send"):
-        if user_input:
-            # Add user's message to chat history
-            st.session_state['chat_history'].append(f"You: {user_input}")
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history=[]
 
-            # Generate response using the LLM
-            response = response_generator.generate_response(user_input)
+    if uploaded_file:
+        doc_id = f"{uploaded_file.name}_{os.urandom(4).hex()}"  # Unique ID for each doc
 
-            # Add LLM's response to the chat history
-            st.session_state['chat_history'].append(f"Assistant: {response}")
+        if uploaded_file.type == "application/pdf":
+            extracted_text=extractors.extract_text_from_pdf(uploaded_file)
+            cleaned_text = preprocessors.preprocess_text(extracted_text)
+            v_db.upsert_embedding(doc_id, cleaned_text, {"type": "pdf", "name": uploaded_file.name})
+            st.session_state.chat_history.append({"role":"system","content":f"Context from {uploaded_file.name}"})
 
-            # Clear the input field indirectly by setting a different session key
-            st.session_state['message'] = ''  # This won't conflict with 'user_input'
+        elif uploaded_file.type == "text/csv":
+            df = pd.read_csv(uploaded_file)
+            df_summary = df.describe().to_string()
+            v_db.upsert_embedding(doc_id, df_summary, {"type": "csv", "name": uploaded_file.name})
+            st.session_state.chat_history.append({"role": "system", "content": f"CSV summary from {uploaded_file.name} has been added."})   
+
+    if url_input:
+        doc_id = f"url_{os.urandom(4).hex()}"
+        extracted_text = extractors.extract_text_from_url(url_input)
+        cleaned_text = preprocessors.preprocess_text(extracted_text)
+        v_db.upsert_embedding(doc_id, cleaned_text, {"type": "url", "source": url_input})
+        st.session_state.chat_history.append({"role": "system", "content": f"Context from URL has been added."})
+        st.session_state.chat_history.append({"role": "system", "content": f"Context from URL: {extracted_text}"})
+
+
+    
+    for message in st.session_state.chat_history:
+        with st.chat_message(message["role"]):
+            st.write(message["content"])
+
+
+    user_input=st.chat_input("Ask your query here:")
+
+    if user_input:
+
+        source_filter = None
+        query_text = user_input
+        if user_input.lower().startswith("url"):
+            source_filter="url"
+            query_text = user_input[4:].strip()
+        
+
+        elif user_input.lower().startswith("pdf:"):
+            source_filter = "pdf"
+            query_text = user_input[4:].strip()
+
+
+        st.session_state.chat_history.append({"role":"user","content":user_input})
+
+        with st.chat_message("You:"):
+            st.write(user_input)
+        results = v_db.query_embedding(query_text,"personal_knowledge_assistant",source_filter=source_filter, top_k=2)
+        context=" ".join(results["documents"][0]) if results["documents"] else "No relevant context found."
+
+     #response
+        response_generator = LLMResponseGenerator()
+        truncated_context = response_generator.truncate_text(response_generator.clean_text(context), max_tokens=1500)
+
+        combined_query = f"Context: {truncated_context}\n\nUser Question: {query_text}"
+        
+        response =response_generator.generate_response(combined_query)
+
+        st.session_state.chat_history.append({"role": "assistant", "content": response})
+
+        # Display response
+        with st.chat_message("assistant"):
+            st.write(response)
 
 if __name__ == "__main__":
     main()
+
+

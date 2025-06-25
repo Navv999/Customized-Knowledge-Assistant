@@ -15,5 +15,6 @@ def preprocess_text(text):
 
     # Filter tokens: Remove stopwords, punctuation, and non-alphanumeric tokens, and lemmatize
     words = [token.lemma_ for token in doc if token.is_alpha and not token.is_stop]
+    # print(words)
 
     return ' '.join(words)
