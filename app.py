@@ -134,7 +134,9 @@ def main():
 
         if st.button("Clear Chat"):
             st.session_state.chat_history = []
+            v_db.delete_collection("personal_knowledge_assistant")  # Pseudocode method you add
             st.rerun()
+
 
     
     v_db=vector_db.VectorDB()

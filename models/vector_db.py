@@ -50,6 +50,15 @@ class VectorDB:
             ids=[doc_id]
         )
         print(f"Inserted document with ID: {doc_id}")
+    
+
+    def delete_collection(self, collection_name):
+        """
+        Deletes the specified collection and all its data from ChromaDB.
+        """
+        self.client.delete_collection(collection_name)
+        print(f"Deleted collection: {collection_name}")
+
 
 
     
