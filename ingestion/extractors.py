@@ -23,7 +23,7 @@ def extract_text_from_pdf(file_like_object):
 def extract_text_from_url(url):
     try:
         response=requests.get(url,timeout=5)
-        soup=BeautifulSoup(response.text,"lxml")
+        soup=BeautifulSoup(response.text,"html.parser")
         paragraphs= [p.get_text() for p in soup.find_all("p")]
         return " ".join(paragraphs)[:2000]
     except Exception as e:
