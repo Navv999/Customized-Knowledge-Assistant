@@ -12,6 +12,8 @@ import tiktoken
 from groq import Groq
 import os
 
+chromadb.api.client.SharedSystemClient.clear_system_cache() #to resolve an error related to chroa_db
+
 
 class VectorDB:
     def __init__(self):
