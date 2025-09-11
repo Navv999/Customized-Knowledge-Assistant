@@ -125,7 +125,8 @@ def main():
     api_key = st.secrets["GROQ_API_KEY"]
 
 
-
+    v_db=vector_db.VectorDB()
+    
     # Sidebar: File Upload & URL Input
     with st.sidebar:
         st.header("Upload Files & URLs")
@@ -139,7 +140,7 @@ def main():
 
 
     
-    v_db=vector_db.VectorDB()
+    
 
 
     if "chat_history" not in st.session_state:
