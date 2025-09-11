@@ -46,7 +46,7 @@ class VectorDB:
 
         self.collection.add(
             documents=[document_text],
-            metadatas=[metadata],  # Use the provided metadata
+            metadatas=[metadata],  # use the provided metadata
             ids=[doc_id]
         )
         print(f"Inserted document with ID: {doc_id}")
@@ -75,16 +75,21 @@ class VectorDB:
         collection = self.client.get_collection(doc_id)
 
         # Apply filtering
-        filters = {}
+        filters = None
         if source_filter:
-            filters = {"type": source_filter}  # Match the metadata key in `upsert_embedding`
-
-        # Perform the query
-        results = collection.query(
+            filters = {"type": source_filter}  # a dict with one key
+        # Now call query only with where if filters is not None
+        if filters is not None:
+            results = collection.query(
             query_texts=[query_text],
             n_results=top_k,
             where=filters
         )
+        else:
+            results = collection.query(
+                query_texts=[query_text],
+                n_results=top_k
+            )
 
         return results
 
