@@ -122,6 +122,8 @@ import os
 def main():
     st.set_page_config(page_title="AI Chatbot", layout="wide")  
     st.title("AI Chatbot with File & URL Support")
+    api_key = st.secrets["GROQ_API_KEY"]
+
 
 
     # Sidebar: File Upload & URL Input
